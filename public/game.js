@@ -381,15 +381,15 @@ export class Game {
         playerElement.id = 'player';
         playerElement.style.position = 'absolute';
         playerElement.style.left = `${this.playerPosition}px`;
-        playerElement.style.bottom = '0px';
+        playerElement.style.bottom = '50px';
         playerElement.style.width = '150px'; 
         playerElement.style.height = '225px'; 
         playerElement.style.transform = 'translate(-50%, 0) scaleX(-1)';
         
         const playerImage = document.createElement('img');
         playerImage.src = this.isPlayerRaisingArms ? this.playerArmUpImage.src : this.playerNormalImage.src;
-        playerImage.style.width = '100%';
-        playerImage.style.height = '100%';
+        playerImage.style.width = '150%';
+        playerImage.style.height = '150%';
         playerImage.style.objectFit = 'contain';
 
         playerElement.appendChild(playerImage);
