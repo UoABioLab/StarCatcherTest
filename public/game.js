@@ -1,4 +1,8 @@
-class Game {
+import { Menu } from './menu.js';
+import { DifficultyScreen} from './difficulty.js';
+import { t } from './Language/language.js';
+
+export class Game {
     constructor(gameContainer) {
         // console.log("Game 类已实例化");
         this.gameContainer = gameContainer;
@@ -24,7 +28,7 @@ class Game {
 
         // 绑定方法到实例
         this.updateGame = this.updateGame.bind(this);
-        this.handleClick = this.handleClick.bind(this);
+        // this.handleClick = this.handleClick.bind(this);
 
         this.objects = [];
         this.lastSpawnTime = 0;
@@ -32,7 +36,7 @@ class Game {
         this.playerPosition = this.width / 2;
 
         // 添加鼠标事件监听器
-        this.gameArea.addEventListener('click', this.handleClick);
+        // this.gameArea.addEventListener('click', this.handleClick);
 
         this.difficulty = 1;
 
@@ -61,10 +65,12 @@ class Game {
 
         // 添加这些行来检查 pose-container 的位置
         const poseContainer = document.getElementById('pose-container');
-        console.log('Pose container position:', poseContainer.getBoundingClientRect());
-        console.log('Pose container style:', window.getComputedStyle(poseContainer));
+        // console.log('Pose container position:', poseContainer.getBoundingClientRect());
+        // console.log('Pose container style:', window.getComputedStyle(poseContainer));
 
         this.difficultyScreen = new DifficultyScreen(this);
+        // console.log(this.difficultyScreen); // 确保它是一个 DifficultyScreen 实例
+        // this.difficultyManager = new DifficultyManager(this.game);
 
         this.playerNormalImage = new Image();
         this.playerNormalImage.src = 'public/Assets/avatar/old_man.png';
@@ -106,11 +112,16 @@ class Game {
         this.slapSound = new Audio('public/Assets/sound/slap.ogg');
         this.screamingSound = new Audio('public/Assets/sound/screaming.ogg');
         this.gameplayMusic = new Audio('public/Assets/sound/Komiku_-_12_-_Bicycle.ogg');
-        this.menuMusic = new Audio('public/ssets/sound/music.ogg');
+        this.menuMusic = new Audio('public/Assets/sound/music.ogg');
 
         this.poseDetection = null; // 添加这行
 
         this.isMovingLeft = false; // 初始化移动方向
+    }
+
+    showInstructions() {
+        // 调用 Menu 中的显示规则逻辑（如果需要重新调用 Menu 中的 showInstructions 方法）
+        this.menu.showInstructions();  // 这假设你有 Menu 实例并且想要调用 Menu 的方法
     }
 
     async checkAvailableCameras() {
@@ -406,8 +417,10 @@ class Game {
         gameOverElement.style.zIndex = '1000';
 
         const scoreText = document.createElement('h2');
-        scoreText.textContent = `Your Score: ${this.score}`;
-        scoreText.style.color = 'yellow';
+        
+        scoreText.textContent = `${t('finalScore')}: ${this.score}`;
+        scoreText.style.fontSize = '48px';
+        scoreText.style.color = 'white';
         gameOverElement.appendChild(scoreText);
 
         const buttonContainer = document.createElement('div');
@@ -416,7 +429,7 @@ class Game {
         buttonContainer.style.marginTop = '20px';
 
         const buttonStyle = `
-            font-size: 24px;
+            font-size: 30px;
             padding: 10px 20px;
             margin: 10px;
             cursor: pointer;
@@ -425,9 +438,9 @@ class Game {
             border: none;
             border-radius: 5px;
         `;
-
+        
         const restartButton = document.createElement('button');
-        restartButton.textContent = 'Restart';
+        restartButton.textContent = t('retry');
         restartButton.style.cssText = buttonStyle;
         restartButton.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -435,7 +448,7 @@ class Game {
         });
 
         const quitButton = document.createElement('button');
-        quitButton.textContent = 'Quit';
+        quitButton.textContent = t('back');
         quitButton.style.cssText = buttonStyle;
         quitButton.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -450,26 +463,26 @@ class Game {
         this.gameArea.appendChild(gameOverElement);
     }
 
-    handleClick(event) {
-        if (this.state !== 'menu') {
-            const rect = this.gameArea.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+    // // handleClick(event) {
+    //     if (this.state !== 'menu') {
+    //         const rect = this.gameArea.getBoundingClientRect();
+    //         const x = event.clientX - rect.left;
+    //         const y = event.clientY - rect.top;
 
-            if (this.state === 'difficulty') {
-                // 处理难度选择界面的点击
-                const result = this.difficultyScreen.handleClick(x, y);
-                if (result) {
-                    if (result.action === 'back') {
-                        this.state = 'menu';
-                        this.menu.draw();
-                    } else if (result.action === 'submit') {
-                        this.startGame(result.difficulty);
-                    }
-                }
-            }
-        }
-    }
+            // if (this.state === 'difficulty') {
+            //     // 处理难度选择界面的点击
+            //     // const result = this.difficultyScreen.handleClick(x, y);
+            //     // if (result) {
+            //     //     if (result.action === 'back') {
+            //     //         this.state = 'menu';
+            //     //         this.menu.draw();
+            //     //     } else if (result.action === 'submit') {
+            //     //         this.startGame(result.difficulty);
+            //     //     }
+            //     // }
+            // }
+    //     }
+    // }
 
     handleMouseMove(event) {
         if (this.state === 'playing') {
@@ -580,14 +593,21 @@ class Game {
         const hudElement = document.createElement('div');
         hudElement.id = 'hud';
         hudElement.innerHTML = `
-            <p style="font-size: 48px;">Score: ${this.score}</p>
-            <p style="font-size: 48px;">Lives: ${this.lives}</p>
-            <p style="font-size: 48px;">Time: ${Math.floor(this.timeLeft)}</p>
+            <p style="font-size: 48px;">${t('score')}: ${this.score}</p>
+            <p style="font-size: 48px;">${t('lives')}: ${this.lives}</p>
+            <p style="font-size: 48px;">${t('timePlayed')}: ${Math.floor(this.timeLeft)}</p>
         `;
         this.gameArea.appendChild(hudElement);
     }
 
     startGame() {
+
+        // 确保难度设置被正确应用
+        if (!this.difficulty || !difficulty_map[this.difficulty]) {
+            // 如果没有选择难度，提示用户选择
+            this.showDifficultyModal();
+            return;  // 退出函数，不继续执行游戏
+        }
         this.clearGameObjects();
         this.score = 0;
         this.lives = 3;
@@ -598,12 +618,6 @@ class Game {
         this.countdownTime = 5;
         this.countdownStartTime = Date.now();
         this.gameTime = 0;
-
-        // 确保难度设置被正确应用
-        if (!this.difficulty || !difficulty_map[this.difficulty]) {
-            console.log("Setting default difficulty to medium");
-            this.difficulty = 'medium';
-        }
         
         const settings = difficulty_map[this.difficulty];
         console.log(`Starting game with difficulty: ${this.difficulty}`, settings);
@@ -623,6 +637,48 @@ class Game {
             this.gameplayMusic.play();
         }
     }
+
+    // 显示自定义提示框
+showDifficultyModal() {
+    const modal = document.createElement('div');
+    modal.id = 'difficulty-modal';
+    modal.style.position = 'fixed';
+    modal.style.top = '60%';
+    modal.style.fontSize = '30px';
+    modal.style.left = '50%';
+    modal.style.transform = 'translate(-50%, -50%)';
+    modal.style.backgroundColor = 'rgb(47, 136, 252)';
+    modal.style.padding = '30px';
+    modal.style.borderRadius = '10px';
+    modal.style.textAlign = 'center';
+    modal.style.color = 'white';
+    modal.style.zIndex = '1000';
+
+    const modalText = document.createElement('h2');
+    modalText.textContent = t('difficultySelectionReminder');
+    modal.appendChild(modalText);
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = t('Close');
+    closeButton.style.marginTop = '20px';
+    closeButton.style.padding = '10px 20px';
+    closeButton.style.fontSize = '30px';
+    closeButton.style.fontWeight = 'bold';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.backgroundColor = 'rgb(216, 213, 213)';
+    closeButton.style.color = 'white';
+    closeButton.style.border = 'none';
+    closeButton.style.borderRadius = '5px';
+
+    closeButton.addEventListener('click', () => {
+        modal.remove();
+        this.difficultyScreen.draw(this.game.gameArea); // 重新绘制难度选择界面
+    });
+
+    modal.appendChild(closeButton);
+
+    document.body.appendChild(modal);
+}
 
     updateCountdown() {
         const currentTime = Date.now();

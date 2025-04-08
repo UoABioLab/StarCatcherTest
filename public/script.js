@@ -1,3 +1,5 @@
+import { Game } from './game.js';
+
 console.log("script.js is being executed");
 
 let game;
