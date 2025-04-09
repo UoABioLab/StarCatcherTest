@@ -164,12 +164,19 @@ export class Menu {
     }
 
     confirmQuit() {
-        const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        const mainPage = isLocal
-            ? '/GameIndex/index.html'  // 本地路径
-            : 'https://uoabiolab.github.io/GameIndexTest/';  // GitHub Pages 路径
+        const referrer = document.referrer;
 
-        window.location.href = mainPage;
+        if (referrer) {
+            window.location.href = referrer;
+        } else {
+            const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            const currentPath = location.pathname.split('/')[1];
+            const mainPage = isLocal
+                ? '/GameIndex/index.html'
+                : `https://${location.hostname}/${currentPath}/`;
+
+            window.location.href = mainPage;
+        }
     }
 
     update() {
